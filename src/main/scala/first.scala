@@ -20,10 +20,9 @@ case class FilmuSarasas(
   versijos:List[Versija]
 ) extends Objektas {
   val kind = Kindai.FilmuSarasas
-  val blobs = Set.empty[BlobKey]
-
   val name = "filmusarasas"
-  val key = Datastore.nameToKey(kind, name)
+  lazy val key = Datastore.nameToKey(kind, name)
+  lazy val blobs = Set.empty[BlobKey]
 }
 
 object FilmuSarasas {
