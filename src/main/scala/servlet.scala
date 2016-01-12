@@ -7,6 +7,10 @@ import javax.servlet.http.{
 
 import scala.language.implicitConversions
 
+abstract class Method(method:String) {
+  def unapply(req:Req) = Some(req).filter(_.method == method)
+}
+
 object GET extends Method("GET")
 object PUT extends Method("PUT")
 object POST extends Method("POST")
@@ -24,6 +28,7 @@ object Path {
 case class Req(jreq:JReq) {
   val method = jreq.getMethod
   val path = Path(jreq.getRequestURI.split("/").toList)
+  // TODO galiu gauti path'a santykiu i servlet'a o ne absoliutu?
   lazy val body = {
     val reader = jreq.getReader
     val string =
@@ -36,7 +41,9 @@ case class Req(jreq:JReq) {
   }
 }
 
-class Resp(val status:Int, val body:String)
+class Resp(val status:Int, val body:String) {
+  def body(s:String) = new Resp(status=status, body=s)
+}
 
 object Resp {
   def status(i:Int) = new Resp(status=i, body="")
@@ -60,23 +67,18 @@ trait Servlet extends HttpServlet {
   }
 }
 
-abstract class Method(method:String) {
-  def unapply(req:Req) = Some(req).filter(_.method == method)
-}
-
 import dmos.gae.Datastore
 
 class App extends Servlet {
 
   private implicit def fs2resp(fs:FilmuSarasas):Resp =
-    new Resp(200, fs.sarasas)
+    Resp.ok.body(fs.sarasas)
 
   def gaukFilmuSarasa:FilmuSarasas =
     try {
       Datastore.gauk[FilmuSarasas](FilmuSarasas.key)
     } catch {
-      case e: Datastore.NotFound =>
-        FilmuSarasas.empty
+      case e: Datastore.NotFound => FilmuSarasas.empty
     }
 
   def isNumber(s:String) = s.forall(Character.isDigit(_))
@@ -90,7 +92,7 @@ class App extends Servlet {
             try {
               gaukFilmuSarasa.atgalPer(perKiek.toInt)
             } catch {
-              case e:NoSuchVersion => Resp.bad
+              case _:NoSuchVersion => Resp.bad
             }
           else
             Resp.bad

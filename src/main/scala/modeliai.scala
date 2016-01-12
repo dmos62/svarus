@@ -17,7 +17,9 @@ object Kindai {
   val FilmuSarasas = Kind("filmusarasas")
 }
 
-class NoSuchVersion extends java.lang.IndexOutOfBoundsException
+trait BadCall extends Exception
+
+class NoSuchVersion extends BadCall
 
 case class FilmuSarasas(
   sarasas:String,
@@ -35,7 +37,7 @@ case class FilmuSarasas(
   def atgal = atgalPer(1)
 
   def atgalPer(kiek:Int) = {
-    if (kiek > versijos.length) throw new NoSuchVersion
+    if (1 > kiek || kiek > versijos.length) throw new NoSuchVersion
     val patch = versijos.take(kiek).map(_.patch).reduceLeft( _ join _ )
     FilmuSarasas(Patcher.apply(patch, sarasas), versijos.drop(kiek))
   }
