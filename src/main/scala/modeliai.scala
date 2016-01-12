@@ -17,24 +17,25 @@ object Kindai {
   val FilmuSarasas = Kind("filmusarasas")
 }
 
+class NoSuchVersion extends java.lang.IndexOutOfBoundsException
+
 case class FilmuSarasas(
   sarasas:String,
-  versijos:Stack[Versija]
+  versijos:List[Versija]
 ) extends Objektas {
-  val kind = Kindai.FilmuSarasas
-  val name = "filmusarasas"
-  lazy val key = Datastore.nameToKey(kind, name)
+  val kind = FilmuSarasas.kind
+  lazy val key = FilmuSarasas.key
   lazy val blobs = Set.empty[BlobKey]
 
   def atnaujink(naujasSarasas:String):FilmuSarasas = {
-    val naujaVersija = Versija(Date(), Patcher.make(sarasas, naujasSarasas))
-    FilmuSarasas(naujasSarasas, versijos.push(naujaVersija))
+    val naujaVersija = Versija(new Date, Patcher.make(naujasSarasas, sarasas))
+    FilmuSarasas(naujasSarasas, naujaVersija :: versijos)
   }
 
   def atgal = atgalPer(1)
 
   def atgalPer(kiek:Int) = {
-    if (kiek > versijos.length) throw new java.lang.IndexOutOfBoundsException
+    if (kiek > versijos.length) throw new NoSuchVersion
     val patch = versijos.take(kiek).map(_.patch).reduceLeft( _ join _ )
     FilmuSarasas(Patcher.apply(patch, sarasas), versijos.drop(kiek))
   }
@@ -42,6 +43,11 @@ case class FilmuSarasas(
 
 object FilmuSarasas {
   import gae.{EntityFrom, ObjektasFrom}
+
+  val kind = Kindai.FilmuSarasas
+  lazy val key = Datastore.nameToKey(kind, kind.name)
+
+  lazy val empty = FilmuSarasas("", List.empty)
 
   implicit val objektasFrom = ObjektasFrom[FilmuSarasas] { ent =>
     new FilmuSarasas(

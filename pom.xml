@@ -10,14 +10,12 @@
     <maven>3.3.0</maven>
   </prerequisites>
   <properties>
-    <app.id></app.id>
+    <app.id>visiskai-svarus</app.id>
     <app.version>1</app.version>
     <gcloud.plugin.version>0.9.58.v20150505</gcloud.plugin.version>
     <appengine.address>0.0.0.0</appengine.address>
     <appengine.version>1.9.30</appengine.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <warNameUnshrunk>${project.build.finalName}-proto</warNameUnshrunk>
-    <warNameShrunk>${project.build.finalName}-proguard</warNameShrunk>
   </properties>
   <dependencies>
     <dependency>
@@ -53,6 +51,7 @@
     </dependency>
     <!-- /Clojure -->
     <!-- Clojurescript -->
+    <!--
     <dependency>
       <groupId>org.clojure</groupId>
       <artifactId>clojurescript</artifactId>
@@ -83,6 +82,7 @@
       <version>0.8.225</version>
       <scope>provided</scope>
     </dependency>
+    -->
     <!-- /Clojurescript -->
     <!-- Scala -->
     <dependency>
@@ -90,11 +90,13 @@
       <artifactId>scala-library</artifactId>
       <version>2.11.7</version>
     </dependency>
+    <!--
     <dependency>
       <groupId>net.databinder</groupId>
       <artifactId>unfiltered-filter_2.11</artifactId>
       <version>0.8.4</version>
     </dependency>
+    -->
     <dependency>
       <groupId>com.typesafe.play</groupId>
       <artifactId>play-json_2.11</artifactId>
@@ -105,7 +107,7 @@
     <dependency>
       <groupId>dmos</groupId>
       <artifactId>gae</artifactId>
-      <version>1.1</version>
+      <version>1.2</version>
     </dependency>
     <!-- /Companion projects -->
   </dependencies>
@@ -200,6 +202,19 @@
               <goal>cc</goal>
             </goals>
           </execution>
+          <execution>
+            <configuration>
+              <mainOutputDir>
+                ${project.build.directory}/${project.build.finalName}/WEB-INF/classes
+              </mainOutputDir>
+            </configuration>
+            <id>
+              webinf
+            </id>
+            <goals>
+              <goal>compile</goal>
+            </goals>
+          </execution>
         </executions>
       </plugin>
       <plugin>
@@ -292,67 +307,6 @@
             </resource>
           </webResources>
         </configuration>
-      </plugin>
-      <plugin>
-        <groupId>com.github.wvengen</groupId>
-        <artifactId>proguard-maven-plugin</artifactId>
-        <version>2.0.11</version>
-        <executions>
-          <!--
-          <execution>
-            <phase>package</phase>
-            <goals>
-              <goal>proguard</goal>
-            </goals>
-          </execution>
-          -->
-        </executions>
-        <configuration>
-          <proguardVersion>5.2.1</proguardVersion>
-          <maxMemory>1024m</maxMemory>
-          <obfuscate>false</obfuscate>
-          <includeDependency>false</includeDependency>
-          <outputDirectory>${project.build.directory}</outputDirectory>
-          <injar>
-            ${warNameUnshrunk}.war
-          </injar>
-          <outjar>
-            ${warNameShrunk}.war
-          </outjar>
-          <libs>
-            <lib>${java.home}/lib/rt.jar</lib>
-            <lib>${com.google.appengine:appengine-api-1.0-sdk:jar}</lib>
-            <lib>${javax.servlet:servlet-api:jar}</lib>
-          </libs>
-          <proguardInclude>${project.basedir}/proguard.conf</proguardInclude>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-antrun-plugin</artifactId>
-        <version>1.8</version>
-        <executions>
-          <!--
-          <execution>
-            <id>unpack-proguard-war</id>
-            <phase>package</phase>
-            <configuration>
-              <target>
-                <move
-                  file="${project.build.directory}/${project.build.finalName}"
-                  tofile="${project.build.directory}/${project.build.finalName}-proto" />
-                <unzip
-                  src="${project.build.directory}/${warNameShrunk}.war"
-                  dest="${project.build.directory}/${project.build.finalName}"
-                  />
-              </target>
-            </configuration>
-            <goals>
-              <goal>run</goal>
-            </goals>
-          </execution>
-          -->
-        </executions>
       </plugin>
     </plugins>
   </build>

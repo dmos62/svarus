@@ -1,5 +1,9 @@
 package dmos.svarus
 
+import scala.language.implicitConversions
+
+import play.api.libs.json.{Json => PlayJson, Writes, Reads, Format}
+
 object Patcher {
   import name.fraser.neil.plaintext.diff_match_patch
   import scala.collection.JavaConverters._
@@ -8,8 +12,14 @@ object Patcher {
 
   private lazy val dmp = new diff_match_patch
 
-  class Patch(val subPatches:java.util.LinkedList[SubPatch]) {
-    def join(patch:Patch) = new Patch(patch.subPatches addAll subPatches)
+  import java.util.LinkedList
+
+  class Patch(val subPatches:LinkedList[SubPatch]) {
+    def join(patch:Patch) = {
+      val newSubPatches = new LinkedList(patch.subPatches)
+      newSubPatches addAll subPatches
+      new Patch(newSubPatches)
+    }
   }
 
   object Patch {
