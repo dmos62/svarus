@@ -27,7 +27,8 @@ object Path {
 
 case class Req(jreq:JReq) {
   val method = jreq.getMethod
-  val path = Path(jreq.getRequestURI.split("/").toList)
+  //val path = Path(jreq.getRequestURI.split("/").toList)
+  val path = Path(jreq.getContextPath.split("/").toList)
   // TODO galiu gauti path'a santykiu i servlet'a o ne absoliutu?
   lazy val body = {
     val reader = jreq.getReader
@@ -69,7 +70,7 @@ trait Servlet extends HttpServlet {
 
 import dmos.gae.Datastore
 
-class App extends Servlet {
+class Filmai extends Servlet {
 
   private implicit def fs2resp(fs:FilmuSarasas):Resp =
     Resp.ok.body(fs.sarasas)
@@ -85,7 +86,7 @@ class App extends Servlet {
 
   def serve(req:Req):Resp = {
     req match {
-      case GET(Path("filmai" :: sub)) => sub match {
+      case GET(Path(sub)) => sub match {
         case Nil => gaukFilmuSarasa
         case "atgal" :: perKiek :: Nil => {
           if (isNumber(perKiek))
@@ -99,9 +100,21 @@ class App extends Servlet {
         }
         case _ => Resp.notFound
       }
-      case PUT(Path("filmai" :: Nil)) => 
+      case PUT(Path(Nil)) => 
         Datastore.issaugok[FilmuSarasas](gaukFilmuSarasa.atnaujink(req.body))
       case _ => Resp.notFound
+    }
+  }
+}
+
+class Javascript extends Servlet {
+
+  def javascriptPage(path:String):String = "todo"
+
+  def serve(req:Req):Resp = {
+    req match {
+      case GET(_) => Resp.ok.body(javascriptPage("/js/main.js"))
+      case _ => Resp.bad
     }
   }
 }

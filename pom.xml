@@ -293,6 +293,7 @@
           </execution>
         </executions>
       </plugin>
+      <!--
       <plugin>
         <artifactId>maven-war-plugin</artifactId>
         <version>2.6</version>
@@ -308,6 +309,7 @@
           </webResources>
         </configuration>
       </plugin>
+      -->
     </plugins>
   </build>
 </project>
