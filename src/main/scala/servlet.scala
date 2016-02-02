@@ -3,7 +3,7 @@ package dmos.svarus
 import javax.servlet.http.{
   HttpServlet,
   HttpServletRequest => JReq,
-  HttpServletResponse => JResp}
+HttpServletResponse => JResp}
 
 import scala.language.implicitConversions
 
@@ -19,7 +19,7 @@ object DELETE extends Method("DELETE")
 case class Path(els:List[String])
 
 object Path {
-  def unapply(req:Req):Option[List[String]] = req.path match {
+  def unapply(req:Req):Option[List[String]] = req.contextPath match {
     case Path("" :: rest) => Some(rest)
     case Path(whole) => Some(whole)
   }
@@ -27,9 +27,10 @@ object Path {
 
 case class Req(jreq:JReq) {
   val method = jreq.getMethod
-  //val path = Path(jreq.getRequestURI.split("/").toList)
-  val path = Path(jreq.getContextPath.split("/").toList)
-  // TODO galiu gauti path'a santykiu i servlet'a o ne absoliutu?
+  private def string2Path(s:String) = Path(s.split("/").toList)
+  val servletPath = string2Path(jreq.getServletPath)
+  val path = string2Path(jreq.getRequestURI)
+  val contextPath = Path(path.els.drop(servletPath.els.length))
   lazy val body = {
     val reader = jreq.getReader
     val string =
@@ -43,7 +44,9 @@ case class Req(jreq:JReq) {
 }
 
 class Resp(val status:Int, val body:String) {
-  def body(s:String) = new Resp(status=status, body=s)
+  def body(s:String):Resp = new Resp(status=status, body=s)
+
+  def body(html:HtmlDoc):Resp = this.body(html.toString)
 }
 
 object Resp {
@@ -68,11 +71,45 @@ trait Servlet extends HttpServlet {
   }
 }
 
-import dmos.gae.Datastore
+case class HtmlDoc( 
+  title:String,
+  jses:List[String],
+  csses:List[String],
+  body:xml.NodeSeq) {
+
+  def title(s:String):HtmlDoc = this.copy(title = s)
+  def js(path:String) = this.copy(jses = this.jses :+ path)
+  def css(path:String) = this.copy(csses = this.csses :+ path)
+  def body(html:xml.NodeSeq):HtmlDoc = this.copy(body = html)
+
+  lazy override val toString:String = 
+    {
+      <html>
+        <head>
+          <meta charset="utf-8"/>
+          <title>{ title }</title>
+          { for { path <- jses } yield
+            <script src={ path }></script> }
+          { for { path <- csses } yield
+            <link href={ path } rel="stylesheet"></link> }
+        </head>
+        <body>{ body }</body>
+      </html>
+    }.toString
+}
+
+object HtmlDoc
+  extends HtmlDoc(
+    title="",
+    jses=Nil,
+    csses=Nil,
+    body=Nil)
 
 class Filmai extends Servlet {
 
-  private implicit def fs2resp(fs:FilmuSarasas):Resp =
+  import dmos.gae.Datastore
+
+  implicit def fs2resp(fs:FilmuSarasas):Resp =
     Resp.ok.body(fs.sarasas)
 
   def gaukFilmuSarasa:FilmuSarasas =
@@ -107,13 +144,29 @@ class Filmai extends Servlet {
   }
 }
 
-class Javascript extends Servlet {
+class ForHumans extends Servlet {
 
-  def javascriptPage(path:String):String = "todo"
+  lazy val jsPage =
+    HtmlDoc
+      .title("Laba diena")
+      .js("/js/main.js")
+      .body(<div id="container"></div>)
 
-  def serve(req:Req):Resp = {
+  def serve(req:Req) = Resp.ok.body(jsPage)
+}
+
+class PublicREST extends Servlet {
+
+  def serve(req:Req) = {
     req match {
-      case GET(_) => Resp.ok.body(javascriptPage("/js/main.js"))
+      case GET(Path(sub)) => sub match {
+        case "filmai" :: Nil => {
+          val filmai = new Filmai
+          import filmai.fs2resp
+          filmai.gaukFilmuSarasa
+        }
+        case _ => Resp.notFound
+      }
       case _ => Resp.bad
     }
   }

@@ -14,7 +14,7 @@
     <app.version>1</app.version>
     <gcloud.plugin.version>0.9.58.v20150505</gcloud.plugin.version>
     <appengine.address>0.0.0.0</appengine.address>
-    <appengine.version>1.9.30</appengine.version>
+    <appengine.version>1.9.31</appengine.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
   <dependencies>
@@ -46,24 +46,34 @@
     <dependency>
       <groupId>org.clojure</groupId>
       <artifactId>clojure</artifactId>
-      <version>1.7.0</version>
+      <version>1.8.0</version>
       <scope>provided</scope>
     </dependency>
     <!-- /Clojure -->
     <!-- Clojurescript -->
-    <!--
     <dependency>
       <groupId>org.clojure</groupId>
       <artifactId>clojurescript</artifactId>
-      <version>1.7.122</version>
+      <version>1.7.228</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.clojure</groupId>
       <artifactId>core.async</artifactId>
-      <version>0.1.346.0-17112a-alpha</version>
+      <version>0.2.374</version>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>reagent</groupId>
+      <artifactId>reagent</artifactId>
+      <version>0.6.0-alpha</version>
+    </dependency>
+    <dependency>
+      <groupId>org.clojure</groupId>
+      <artifactId>core.match</artifactId>
+      <version>0.3.0-alpha4</version>
+    </dependency>
+    <!--
     <dependency>
       <groupId>org.omcljs</groupId>
       <artifactId>om</artifactId>
@@ -90,17 +100,15 @@
       <artifactId>scala-library</artifactId>
       <version>2.11.7</version>
     </dependency>
-    <!--
-    <dependency>
-      <groupId>net.databinder</groupId>
-      <artifactId>unfiltered-filter_2.11</artifactId>
-      <version>0.8.4</version>
-    </dependency>
-    -->
     <dependency>
       <groupId>com.typesafe.play</groupId>
       <artifactId>play-json_2.11</artifactId>
       <version>2.3.10</version>
+    </dependency>
+    <dependency>
+      <groupId>org.scala-lang.modules</groupId>
+      <artifactId>scala-xml_2.11</artifactId>
+      <version>1.0.5</version>
     </dependency>
     <!-- /Scala -->
     <!-- Companion projects -->
@@ -162,6 +170,7 @@
           </execution>
         </executions>
       </plugin>
+      <!--
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
@@ -171,6 +180,7 @@
           <target>1.7</target>
         </configuration>
       </plugin>
+      -->
       <plugin>
         <groupId>net.alchim31.maven</groupId>
         <artifactId>scala-maven-plugin</artifactId>

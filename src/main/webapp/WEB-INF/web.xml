@@ -19,12 +19,22 @@
   -->
 
   <servlet>
-    <servlet-name>Javascript</servlet-name>
-    <servlet-class>dmos.svarus.Javascript</servlet-class>
+    <servlet-name>PublicREST</servlet-name>
+    <servlet-class>dmos.svarus.PublicREST</servlet-class>
   </servlet>
 
   <servlet-mapping>
-    <servlet-name>Javascript</servlet-name>
+    <servlet-name>PublicREST</servlet-name>
+    <url-pattern>/public/*</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>ForHumans</servlet-name>
+    <servlet-class>dmos.svarus.ForHumans</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>ForHumans</servlet-name>
     <url-pattern>/*</url-pattern>
   </servlet-mapping>
 
