@@ -19,6 +19,13 @@ object DELETE extends Method("DELETE")
 case class Path(els:List[String])
 
 object Path {
+  def unapply(req:Req):Option[List[String]] = req.path match {
+    case Path("" :: rest) => Some(rest)
+    case Path(whole) => Some(whole)
+  }
+}
+
+object ContextPath {
   def unapply(req:Req):Option[List[String]] = req.contextPath match {
     case Path("" :: rest) => Some(rest)
     case Path(whole) => Some(whole)
@@ -28,9 +35,11 @@ object Path {
 case class Req(jreq:JReq) {
   val method = jreq.getMethod
   private def string2Path(s:String) = Path(s.split("/").toList)
-  val servletPath = string2Path(jreq.getServletPath)
-  val path = string2Path(jreq.getRequestURI)
-  val contextPath = Path(path.els.drop(servletPath.els.length))
+  lazy val servletPath = string2Path(jreq.getServletPath)
+  lazy val path = string2Path(jreq.getRequestURI)
+  lazy val contextPath = Path(path.els.drop(servletPath.els.length))
+  lazy val rootUrl = 
+    jreq.getScheme + "://" + jreq.getServerName + ":" + jreq.getServerPort
   lazy val body = {
     val reader = jreq.getReader
     val string =
@@ -123,7 +132,7 @@ class Filmai extends Servlet {
 
   def serve(req:Req):Resp = {
     req match {
-      case GET(Path(sub)) => sub match {
+      case GET(ContextPath(sub)) => sub match {
         case Nil => gaukFilmuSarasa
         case "atgal" :: perKiek :: Nil => {
           if (isNumber(perKiek))
@@ -135,9 +144,11 @@ class Filmai extends Servlet {
           else
             Resp.bad
         }
+        case "kiek" :: Nil =>
+          Resp.ok.body(gaukFilmuSarasa.versijos.length.toString)
         case _ => Resp.notFound
       }
-      case PUT(Path(Nil)) => 
+      case PUT(ContextPath(Nil)) => 
         Datastore.issaugok[FilmuSarasas](gaukFilmuSarasa.atnaujink(req.body))
       case _ => Resp.notFound
     }
@@ -150,21 +161,28 @@ class ForHumans extends Servlet {
     HtmlDoc
       .title("Laba diena")
       .js("/js/main.js")
+      .css("/css/main.css")
       .body(<div id="container"></div>)
 
   def serve(req:Req) = Resp.ok.body(jsPage)
 }
 
-class PublicREST extends Servlet {
+class Public extends Servlet {
+
+  import dmos.gae.Users
 
   def serve(req:Req) = {
     req match {
-      case GET(Path(sub)) => sub match {
-        case "filmai" :: Nil => {
+      case GET(_) => req match {
+        case ContextPath("filmai" :: Nil) => {
           val filmai = new Filmai
           import filmai.fs2resp
           filmai.gaukFilmuSarasa
         }
+        case Path("admin_q" :: Nil) =>
+          if (Users.isAdmin) Resp.ok.body("yes")
+          else Resp.ok.body("no")
+        case Path("login" :: Nil) => Resp.ok.body(Users.loginUrl(req.rootUrl))
         case _ => Resp.notFound
       }
       case _ => Resp.bad

@@ -115,7 +115,7 @@
     <dependency>
       <groupId>dmos</groupId>
       <artifactId>gae</artifactId>
-      <version>1.2</version>
+      <version>1.3</version>
     </dependency>
     <!-- /Companion projects -->
   </dependencies>

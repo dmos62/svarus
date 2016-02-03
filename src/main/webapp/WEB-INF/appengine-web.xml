@@ -10,9 +10,8 @@
 
     <static-files>
       <include path="/js/**" expiration="10m" />
-      <include path="/**.js" expiration="10m" />
+      <include path="/css/**.css" expiration="1d" />
       <include path="/**.html" expiration="1d" />
-      <include path="/**.css" expiration="1d" />
       <include path="/**.png" expiration="1d" />
       <include path="/**.svg" expiration="1d" />
       <include path="/favicon.ico" expiration="7d" />

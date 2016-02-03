@@ -8,7 +8,7 @@
 
   <servlet-mapping>
     <servlet-name>Filmai</servlet-name>
-    <url-pattern>/rest/filmai/*</url-pattern>
+    <url-pattern>/xxx/filmai/*</url-pattern>
   </servlet-mapping>
 
   <!--
@@ -19,13 +19,15 @@
   -->
 
   <servlet>
-    <servlet-name>PublicREST</servlet-name>
-    <servlet-class>dmos.svarus.PublicREST</servlet-class>
+    <servlet-name>Public</servlet-name>
+    <servlet-class>dmos.svarus.Public</servlet-class>
   </servlet>
 
   <servlet-mapping>
-    <servlet-name>PublicREST</servlet-name>
+    <servlet-name>Public</servlet-name>
     <url-pattern>/public/*</url-pattern>
+    <url-pattern>/admin_q</url-pattern>
+    <url-pattern>/login</url-pattern>
   </servlet-mapping>
 
   <servlet>

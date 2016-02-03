@@ -1,0 +1,31 @@
+div#valdymas {
+}
+
+#filmai textarea {
+  width: 30em;
+  min-height: 10em;
+}
+
+#filmai #render {
+  display: flex;
+  flex-flow: wrap;
+}
+
+#render h2 {
+  font-size: 1em;
+  font-weight: normal;
+  font-style: italic;
+  margin: 0;
+}
+
+#render .block {
+  margin: 0 0.5em 0.5em 0;
+}
+
+#adminui {
+  margin-top: 0.5em;
+}
+
+#valdymas a {
+  margin-right: 0.5em;
+}

@@ -15,17 +15,28 @@
             [dmos.cljs.navigation :as n]
             [cljs.core.match :refer-macros [match]]
             [dmos.svarus.filmai :refer [filmai]]
+            [dmos.cljs.http-client :refer [<req]]
             )
   (:require-macros [cljs.core.async.macros :refer [go go-loop]]))
 
 (enable-console-print!)
 
+(def admin? (r/atom false))
+
+(defn patikrink-ar-adminas! []
+  (go 
+    (when-let [r (<! (<req {:url "/admin_q" :method "GET"}))]
+      (reset! admin? (TRACE "adminas?" (= "yes" (:body r))))
+      )))
+
 (defn router [token-atom]
-  (match [@token-atom]
-         [[]] [:h1 "tu namai"]
-         [["filmai"]] [filmai]
-         :else [:p "404"]
-         ))
+  (patikrink-ar-adminas!)
+  (fn []
+    (match [@token-atom]
+           [[]] [:h1 "tu namai"]
+           [["filmai"]] [filmai admin?]
+           :else [:p "404"]
+           )))
 
 (def token (r/atom []))
 
@@ -34,6 +45,7 @@
   (fn [_ _ o n]
     ;(TRACE "token" n)
     ))
+
 
 (n/init-navigation! token)
 
